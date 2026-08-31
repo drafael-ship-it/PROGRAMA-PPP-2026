@@ -1,0 +1,3 @@
+nohup: ignoring input
+INFO:     Will watch for changes in these directories: ['/var/www/economia/tramites/practicas_PreProfesionales']
+ERROR:    Error loading ASGI app. Could not import module "main".

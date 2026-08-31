@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestor de Expedientes PPP - FEP</title>
+    <link rel="stylesheet" href="statics/css/estilos.css">
+    <script src="statics/js/notificaciones.js"></script>
+</head>
+<body class="alumno-body">
+
+<div class="container">
+    <div class="header-panel">
+        Sesión: <strong id="lbl-nombre">...</strong> (<span id="lbl-codigo">...</span>)
+        <a href="#" onclick="cerrarSesion()" class="logout-link">Cerrar Sesión</a>
+    </div>
+    <h1>Consideraciones</h1>
+    <p>1. La duración de las PPP es de tres (03) meses como mínimo, con un máximo de 30 hrs de trabajo a la semana según ley N° 28518, haciendo un total mínomo de 
+        360 hrs(computables al cierre de la recepción del expediente). De preferencia en periodo continuo y en un solo centro de PPP.
+    </p>
+    <p>2. Para formalizar la buena fe en veracidad de los documentos, el estudiante firmará una DDJJ de Autenticidad de documentos. Las PPP iniciadas sin contrato o convenio firmado no serán reconocidas.</p>
+    <hr class="content-separator">
+    <div class="fase-contenedor" id="fase1-bloque">
+        <h2>Fase 1: Guía a seguir</h2>
+        <p>1. Cumplidas las concideraciones el estudiante llenará la <strong>FICHA DE PRESENTACIÓN (Formato I)</strong>. Esta ficha es para que la Comisión de Practicas Pre Profesionales conozca el numero de alumnos que requieren prácticas.</p>
+	<p>2. El estudiante solicitará una <strong>CARTA DE PRESENTACIÓN</strong> que la emitirá la secretaría de la Facultad con VoB del Decano como medio de presentación del alumno elegible ante su futuro empleador.</p>
+        <p>3. El estudiante al conseguir la PPP deberá llenar la <strong>FICHA PARA LA AUTORIZACIÓN (Formato II)</strong> de la Comisión de PPP paar la realización de sus prácticas.</p>
+        <p>4. El estudiante deberá llenar la <strong>CARTA DE COMPROMISO (Formato III)</strong>.</p>
+        <p>5. Por último, el estudiante deberá llenar la <strong>SOLICITUD DE EVALUACIÓN DE PRÁCTICAS PRE PROFESIONALES (Formato VII)</strong></p>
+
+        <div class="formatos-grid">
+            <a href="/formatos/formato1.pdf" class="btn-descarga" download>Descargar Formato I</a>
+            <a href="/formatos/formato2.pdf" class="btn-descarga" download>Descargar Formato II</a>
+            <a href="/formatos/formato3.pdf" class="btn-descarga" download>Descargar Formato III</a>
+            <a href="/formatos/formato7.pdf" class="btn-descarga" download>Descargar Formato VII</a>
+        </div>
+        
+        <form id="form-fase1" enctype="multipart/form-data">
+            <label class="form-label">Subir Solicitud Escaneada (PDF):</label><br><br>
+            <input type="file" id="file-fase1" accept="application/pdf" multiple required onchange="mostrarNombresSeleccionados(1, this)">
+	    <div id="lista-fase1" class="selected-files-list"></div>
+            <br><br>
+            <button type="submit" class="btn-subir">Enviar Documentación Fase 1</button>
+        </form>
+        <div id="status-fase1" class="status-box no-enviado"></div>
+    </div>
+
+    <div class="fase-contenedor" id="fase2-bloque">
+        <h2>Fase 2: Convenio / Contrato de Prácticas</h2>
+        <p>Es indispensable contar con un <strong>CONVENIO DE PRACTICAS</strong> (con VoB del Decano) o <strong>CONTRATO DE TRABAJO</strong> antes del inicio de las prácticas preprofesionales.</p>
+        <p>El alumno tendrá que subir:</p>
+        <ul>
+            <li><strong>CONVENIO DE PRÁCTICAS o CONTRATO DE TRABAJO</strong></li>
+            <li><strong>CONSTANCIA o CERTIFICADO DE TRABAJO</strong></li>
+        </ul>
+        
+        <form id="form-fase2" enctype="multipart/form-data">
+            <label class="form-label">Subir Convenio / Contrato (PDF):</label><br><br>
+            <input type="file" id="file-fase2" accept="application/pdf" multiple required onchange="mostrarNombresSeleccionados(2, this)">
+	    <div id="lista-fase2" class="selected-files-list"></div>
+            <br><br>
+            <button type="submit" class="btn-subir">Enviar Documentación Fase 2</button>
+        </form>
+        <div id="status-fase2" class="status-box no-enviado"></div>
+    </div>
+
+    <div class="fase-contenedor" id="fase3-bloque">
+        <h2>Fase 3: Informe Final</h2>
+        <p>1. Al finalizar las prácticas preprofesionales, el estudiante le presentará al jefe responsable del practicante la <strong>FICHA DE EVALUACIÓN (Formato IV)</strong> para que la llene y sea entregada
+            al estudiante, junto con su <strong>CONSTANCIA DE TRABAJO</strong> (en hoja membretada con firma y sello).
+        </p>
+        <p>2. La <strong>FICHA DE EVALUACIÓN (Formato IV)</strong> Firma y sello, se acepta firma electrónica del jefe inmediato o del área de RR.HH de la empresa (si no tuviera sello, la hoja deberá ser membretada).</p>
+        <p>3. <strong>El INFORME (Formato V)</strong> que debe incluir la aplicación de los cursos llevados en su experiencia laboral.</p>
+        <p>4. Y una <strong>Declaración jurada (DDJJ)</strong> de veracidad de documentos</p>
+        
+        <div class="formatos-grid">
+            <a href="/formatos/formato4.pdf" class="btn-descarga" download>Descargar Formato IV</a>
+            <a href="/formatos/formato5.pdf" class="btn-descarga" download>Descargar Formato V</a>
+            <a href="/formatos/Declaración_jurada.pdf" class="btn-descarga" download>Declaración Jurada</a>
+        </div>
+
+        <form id="form-fase3" enctype="multipart/form-data">
+            <label class="form-label">Subir Informe Final (PDF):</label><br><br>
+            <input type="file" id="file-fase3" accept="application/pdf" multiple required onchange="mostrarNombresSeleccionados(3, this)">
+	    <div id="lista-fase3" class="selected-files-list"></div>
+            <br><br>
+            <button type="submit" class="btn-subir">Enviar Informe Final</button>
+        </form>
+        <div id="status-fase3" class="status-box no-enviado"></div>
+    </div>
+
+    <div class="fase-contenedor" id="finalizado-bloque">
+        <h2>Ciclo de fases completado</h2>
+        <div class="finalizado-box">
+            <strong>Tu expediente de practicas pre-profesionales fue aprobado.</strong>
+            <p>Has terminado las tres fases del proceso. Ahora solo queda coordinar la sustentacion de tus practicas pre-profesionales.</p>
+            <p>Recordatorio:</p>
+            <ul>
+                <li>Es modalidad presencial.</li>
+                <li>Hora de inicio 11:00 am.</li>
+                <li>Con código de vestimenta FORMAL (no son exposisiones, son entrevistas).</li>
+		<li>Lugar: Facultad de Economía y Planificación.</li>
+            </ul>
+        </div>
+        <div class="status-box aprobado">Estado de tu tramite: <strong>APROBADO</strong></div>
+        <a id="btn-expediente-completo-alumno" class="btn-descarga btn-expediente-completo" href="#" target="_blank" download>
+            Descargar expediente completo
+        </a>
+    </div>
+
+    <div id="observaciones-alumno" class="observaciones-box"></div>
+</div>
+
+<script>
+    const SESSION_DURATION_MS = 30 * 60 * 1000;
+    const SESSION_WARNING_MS = 5 * 60 * 1000;
+    let avisoSesionMostrado = false;
+
+    function cerrarSesionPorTiempo(mensaje = "Su sesion ha expirado.") {
+        showModal({
+            titulo: "Sesión expirada",
+            mensaje: mensaje,
+            txtConfirmar: "Aceptar",
+            onConfirmar: () => cerrarSesion()
+        });
+    }
+
+    function renovarSesion() {
+        localStorage.setItem('sesion_expira_en', (Date.now() + SESSION_DURATION_MS).toString());
+    }
+
+    function verificarSesionAlumno() {
+        const tipoSesion = localStorage.getItem('tipo_sesion');
+        const expiraEn = Number(localStorage.getItem('sesion_expira_en') || 0);
+
+        if (tipoSesion !== 'alumno' || !localStorage.getItem('codigo_alumno') || !expiraEn || Date.now() >= expiraEn) {
+            cerrarSesionPorTiempo();
+            return;
+        }
+
+        const restante = expiraEn - Date.now();
+        if (restante <= SESSION_WARNING_MS && !avisoSesionMostrado) {
+            avisoSesionMostrado = true;
+            showModal({
+                titulo: "Sesión por expirar",
+                mensaje: "Su sesión está por expirar. ¿Desea continuar?",
+                txtConfirmar: "Continuar sesión",
+                txtCancelar: "Cerrar sesión",
+                onConfirmar: () => { renovarSesion(); avisoSesionMostrado = false; },
+                onCancelar: () => cerrarSesion()
+            });
+        }
+    }
+
+    let codigoUsuario = localStorage.getItem('codigo_alumno');
+    let nombreUsuario = localStorage.getItem('nombre_alumno') || 'Alumno';
+
+    function sesionLocalAlumnoValida() {
+        const tipoSesion = localStorage.getItem('tipo_sesion');
+        const expiraEn = Number(localStorage.getItem('sesion_expira_en') || 0);
+        return tipoSesion === 'alumno' && !!localStorage.getItem('codigo_alumno') && !!expiraEn && Date.now() < expiraEn;
+    }
+
+    async function restaurarSesionGoogleAlumno() {
+        try {
+            const response = await fetch('/api/auth/google/session', { credentials: 'include' });
+            if (!response.ok) return false;
+
+            const data = await response.json();
+            localStorage.setItem('tipo_sesion', 'alumno');
+            localStorage.setItem('codigo_alumno', data.codigo_alumno);
+            localStorage.setItem('nombre_alumno', data.nombre);
+            localStorage.setItem('access_token', data.access_token || '');
+            renovarSesion();
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async function inicializarSesionAlumno() {
+        if (!sesionLocalAlumnoValida()) {
+            const restaurada = await restaurarSesionGoogleAlumno();
+            if (!restaurada) {
+                cerrarSesionPorTiempo();
+                return;
+            }
+        }
+
+        codigoUsuario = localStorage.getItem('codigo_alumno');
+        nombreUsuario = localStorage.getItem('nombre_alumno') || 'Alumno';
+
+        document.getElementById('lbl-codigo').innerText = codigoUsuario;
+        document.getElementById('lbl-nombre').innerText = nombreUsuario;
+        document.getElementById('btn-expediente-completo-alumno').href = `/api/expediente/${encodeURIComponent(codigoUsuario)}/pdf-completo`;
+
+        verificarSesionAlumno();
+        setInterval(verificarSesionAlumno, 60000);
+        setInterval(cargarObservaciones, 60000);
+        evaluarFaseVisual();
+    }
+
+    async function evaluarFaseVisual() {
+        try {
+            const response = await fetch(`/api/alumno/estado/${codigoUsuario}`);
+            if (response.ok) {
+                const datos = await response.json();
+                cargarObservaciones();
+                
+                // LÓGICA: Evalua cuál fase le corresponde ver en pantalla
+                if (datos.fase1_estado !== 'aprobado') {
+                    // Si la fase 1 NO está aprobada (está pendiente, observada o vacía), es la única que se muestra
+                    mostrarSoloFase(1, datos.fase1_estado);
+                } else if (datos.fase2_estado !== 'aprobado') {
+                    // Si la fase 1 ya se aprobó, pero la 2 no, ve únicamente la Fase 2
+                    mostrarSoloFase(2, datos.fase2_estado);
+                } else if (datos.fase3_estado !== 'aprobado') {
+                    // Si las fases 1 y 2 están aprobadas, ve únicamente la Fase 3
+                    const estadoFase3 = datos.fase3_estado === 'bloqueado' ? 'pendiente' : datos.fase3_estado;
+                    mostrarSoloFase(3, estadoFase3);
+                } else {
+                    mostrarProcesoFinalizado();
+                }
+            }
+        } catch (error) {
+            console.error("Error al mapear fases:", error);
+        }
+    }
+
+    function mostrarSoloFase(faseNum, estado) {
+        document.querySelectorAll('.fase-contenedor').forEach(div => div.classList.remove('fase-activa'));
+        
+        const bloqueActivo = document.getElementById(`fase${faseNum}-bloque`);
+        bloqueActivo.classList.add('fase-activa');
+        
+        const statusBox = document.getElementById(`status-fase${faseNum}`);
+        statusBox.className = `status-box ${estado || 'no-enviado'}`;
+        statusBox.innerHTML = `Estado de tu trámite: <strong>${(estado || 'No enviado').toUpperCase()}</strong>`;
+    }
+
+    function mostrarProcesoFinalizado() {
+        document.querySelectorAll('.fase-contenedor').forEach(div => div.classList.remove('fase-activa'));
+        document.getElementById('finalizado-bloque').classList.add('fase-activa');
+    }
+
+    document.getElementById('form-fase1').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await procesarSubida(1, document.getElementById('file-fase1'));
+    });
+
+    document.getElementById('form-fase2').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await procesarSubida(2, document.getElementById('file-fase2'));
+    });
+
+    document.getElementById('form-fase3').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await procesarSubida(3, document.getElementById('file-fase3'));
+    });
+
+    async function procesarSubida(faseNum, inputElement) {
+        if(inputElement.files.length === 0) return;
+        const formData = new FormData();
+        formData.append("codigo_alumno", codigoUsuario);
+	
+	for (let i = 0; i < inputElement.files.length; i++) {
+	    formData.append("archivos", inputElement.files[i]);
+	}
+
+        try {
+            const res = await fetch(`/api/subir-fase${faseNum}`, {
+                method: "POST",
+                body: formData
+            });
+            if(res.ok) {
+                showToast("¡Documento enviado con éxito!", "success");
+                evaluarFaseVisual();
+            } else {
+                const err = await res.json();
+                document.getElementById(`lista-fase${faseNum}`).innerHTML = "";
+                showToast("Error: " + err.detail, "error");
+            }
+        } catch (err) {
+            showToast("Error de red con el servidor de Python.", "error");
+        }
+    }
+
+    function mostrarNombresSeleccionados(faseNum, inputElement) {
+        const displayContainer = document.getElementById(`lista-fase${faseNum}`);
+        const files = inputElement.files;
+    
+        displayContainer.innerHTML = "";
+    
+        if (files.length > 0) {
+            let htmlLista = `<div class="selected-files-box">`;
+            htmlLista += `<strong>Archivos listos para enviar (${files.length}):</strong><ul class="selected-files-items">`;
+        
+            for (let i = 0; i < files.length; i++) {
+                htmlLista += `<li class="selected-file">📄 ${files[i].name} <span class="selected-file-size">(${(files[i].size / 1024 / 1024).toFixed(2)} MB)</span></li>`;
+            }
+        
+            htmlLista += `</ul></div>`;
+            displayContainer.innerHTML = htmlLista;
+        }
+    }
+
+    async function cargarObservaciones() {
+        try {
+            const response = await fetch(`/api/alumno/observaciones/${codigoUsuario}`);
+            if (!response.ok) return;
+
+            const observaciones = await response.json();
+            const contenedor = document.getElementById('observaciones-alumno');
+
+            if (!observaciones.length) {
+                contenedor.classList.remove('visible');
+                contenedor.innerHTML = "";
+                return;
+            }
+
+            contenedor.classList.add('visible');
+            contenedor.innerHTML = `<strong>Observaciones del docente</strong>`;
+
+            observaciones.forEach(obs => {
+                const nombreDocumento = escaparHtml(obs.nombre_original || obs.nombre_guardado || 'Documento');
+                const mensaje = escaparHtml(obs.mensaje || '');
+                contenedor.innerHTML += `
+                    <div class="observacion-item">
+                        <div><strong>Fase ${obs.numero_fase}</strong> - ${nombreDocumento}</div>
+                        <div>${mensaje}</div>
+                    </div>
+                `;
+            });
+        } catch (error) {
+            console.error("Error al cargar observaciones:", error);
+        }
+    }
+
+    function escaparHtml(valor) {
+        return String(valor)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function cerrarSesion() {
+        localStorage.clear();
+        window.location.href = "index.html";
+    }
+
+    // Inicializar al cargar la página
+    inicializarSesionAlumno();
+</script>
+</body>
+</html>

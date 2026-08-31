@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Tramite de Practicas Pre-Profesionales</title>
+    <link rel="stylesheet" href="statics/css/estilos.css">
+    <script src="statics/js/notificaciones.js"></script>
+</head>
+<body class="index-body">
+    <div class="login-container">
+        <h2 class="login-title">Portal de Practicas PreProfesionales - FEP</h2>
+
+        <div class="login-type-selector">
+            <button id="btn-tipo-alumno" class="tipo-btn active" onclick="seleccionarTipo('alumno')" type="button">Soy Alumno</button>
+            <button id="btn-tipo-docente" class="tipo-btn" onclick="seleccionarTipo('docente')" type="button">Soy Docente</button>
+        </div>
+
+        <div id="aviso-convocatoria" class="aviso-convocatoria"></div>
+
+        <form id="form-login" onsubmit="procesarIngreso(event)">
+            <div id="campos-alumno-login" class="oculto">
+                <label class="form-label">Codigo de Alumno:</label><br>
+                <input type="text" id="txt-codigo" class="form-input" placeholder="Codigo de alumno">
+            </div>
+
+            <div id="campo-password" class="oculto">
+                <label class="form-label">Usuario Docente:</label><br>
+                <input type="text" id="txt-usuario-doc" class="form-input" placeholder="Usuario">
+                <label class="form-label">Contrasena:</label><br>
+                <input type="password" id="txt-pass-doc" class="form-input" placeholder="********">
+            </div>
+
+            <button type="submit" id="btn-ingresar" class="btn-login oculto">Ingresar al Sistema</button>
+        </form>
+
+        <a id="btn-google-alumno" class="btn-login btn-google-login" href="/api/auth/google/login">
+            Ingresar con Google institucional
+        </a>
+
+        <button id="btn-mostrar-registro" class="btn-link-registro oculto" type="button" onclick="mostrarRegistroAlumno()">
+            Crear cuenta de alumno
+        </button>
+
+        <form id="form-registro-alumno" class="registro-alumno oculto" onsubmit="procesarRegistroAlumno(event)">
+            <h3 class="registro-title">Registro de alumno</h3>
+
+            <label class="form-label">Nombres:</label><br>
+            <input type="text" id="reg-nombres" class="form-input" placeholder="Nombres" required>
+
+            <label class="form-label">Apellidos:</label><br>
+            <input type="text" id="reg-apellidos" class="form-input" placeholder="Apellidos" required>
+
+            <label class="form-label">Codigo de Alumno:</label><br>
+            <input type="text" id="reg-codigo" class="form-input" placeholder="Codigo de alumno" required>
+
+            <label class="form-label">Departamento:</label><br>
+            <select id="reg-departamento" class="form-input" required>
+                <option value="">Seleccione su departamento</option>
+            </select>
+
+            <button type="submit" id="btn-registrar-alumno" class="btn-login">Registrarme</button>
+            <button type="button" class="btn-link-registro" onclick="ocultarRegistroAlumno()">Volver al ingreso</button>
+        </form>
+    </div>
+
+    <script>
+        let tipoUsuarioActual = 'alumno';
+        const SESSION_DURATION_MS = 15 * 60 * 1000;
+        let sistemaAbierto = false;
+        let registroAbierto = false;
+
+        async function verificarConvocatoria() {
+            try {
+                const res = await fetch('/api/convocatorias/activa');
+                const data = await res.json();
+                const aviso = document.getElementById('aviso-convocatoria');
+                const btnIngresar = document.getElementById('btn-ingresar');
+                const btnRegistrar = document.getElementById('btn-registrar-alumno');
+                const btnMostrarRegistro = document.getElementById('btn-mostrar-registro');
+                const txtCodigo = document.getElementById('txt-codigo');
+
+                if (data.activa && data.convocatoria) {
+                    sistemaAbierto = true;
+                    registroAbierto = !!data.registro_abierto;
+                    const conv = data.convocatoria;
+                    const fechaCierre = conv.fecha_fin
+                        ? new Date(conv.fecha_fin).toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' })
+                        : null;
+
+                    if (registroAbierto) {
+                        aviso.className = 'aviso-convocatoria aviso-convocatoria-abierta visible';
+                        aviso.innerHTML = fechaCierre
+                            ? `${conv.nombre} - Registro abierto hasta el ${fechaCierre}`
+                            : `${conv.nombre} - Registro abierto`;
+                    } else {
+                        aviso.className = 'aviso-convocatoria aviso-convocatoria-cerrada visible';
+                        aviso.innerHTML = `${conv.nombre} - Registro cerrado. Solo pueden ingresar alumnos ya registrados.`;
+                    }
+
+                    if (tipoUsuarioActual === 'alumno') {
+                        btnIngresar.disabled = true;
+                        btnIngresar.classList.add('btn-ingresar-deshabilitado');
+                        txtCodigo.disabled = true;
+                    }
+                } else {
+                    sistemaAbierto = false;
+                    registroAbierto = false;
+                    aviso.className = 'aviso-convocatoria aviso-convocatoria-cerrada visible';
+                    aviso.innerHTML = 'El sistema esta cerrado. No hay una convocatoria activa en este momento.';
+                    if (tipoUsuarioActual === 'alumno') {
+                        btnIngresar.disabled = true;
+                        btnIngresar.classList.add('btn-ingresar-deshabilitado');
+                        txtCodigo.disabled = true;
+                    }
+                }
+
+                btnRegistrar.disabled = !registroAbierto;
+                btnRegistrar.classList.toggle('btn-ingresar-deshabilitado', !registroAbierto);
+                btnMostrarRegistro.disabled = true;
+                btnMostrarRegistro.classList.add('oculto');
+            } catch (err) {
+                console.error("Error al verificar convocatoria:", err);
+            }
+        }
+
+        async function cargarDepartamentos() {
+            try {
+                const res = await fetch('/api/departamentos');
+                const departamentos = await res.json();
+                const select = document.getElementById('reg-departamento');
+                departamentos.forEach(dep => {
+                    const option = document.createElement('option');
+                    option.value = dep.id_departamento;
+                    option.textContent = dep.nombre;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                showToast("No se pudieron cargar los departamentos.", "error");
+            }
+        }
+
+        verificarConvocatoria();
+        cargarDepartamentos();
+        mostrarMensajeLoginGoogle();
+
+        function iniciarSesion(tipo) {
+            const expiraEn = Date.now() + SESSION_DURATION_MS;
+            localStorage.setItem('tipo_sesion', tipo);
+            localStorage.setItem('sesion_expira_en', expiraEn.toString());
+        }
+
+        function seleccionarTipo(tipo) {
+            tipoUsuarioActual = tipo;
+            const btnAlu = document.getElementById('btn-tipo-alumno');
+            const btnDoc = document.getElementById('btn-tipo-docente');
+            const camposAlumno = document.getElementById('campos-alumno-login');
+            const campoDocente = document.getElementById('campo-password');
+            const btnIngresar = document.getElementById('btn-ingresar');
+            const btnGoogleAlumno = document.getElementById('btn-google-alumno');
+            const txtCodigo = document.getElementById('txt-codigo');
+            const userDoc = document.getElementById('txt-usuario-doc');
+            const passDoc = document.getElementById('txt-pass-doc');
+
+            if (tipo === 'alumno') {
+                btnAlu.classList.add('active');
+                btnDoc.classList.remove('active');
+                camposAlumno.classList.add('oculto');
+                campoDocente.classList.add('oculto');
+                btnIngresar.classList.add('oculto');
+                txtCodigo.required = false;
+                userDoc.required = false;
+                passDoc.required = false;
+                btnGoogleAlumno.classList.remove('oculto');
+                ocultarRegistroAlumno();
+
+                btnIngresar.disabled = true;
+                btnIngresar.classList.add('btn-ingresar-deshabilitado');
+                txtCodigo.disabled = true;
+            } else {
+                btnDoc.classList.add('active');
+                btnAlu.classList.remove('active');
+                camposAlumno.classList.add('oculto');
+                campoDocente.classList.remove('oculto');
+                btnIngresar.classList.remove('oculto');
+                txtCodigo.required = false;
+                userDoc.required = true;
+                passDoc.required = true;
+                btnGoogleAlumno.classList.add('oculto');
+                document.getElementById('form-registro-alumno').classList.add('oculto');
+                document.getElementById('form-login').classList.remove('oculto');
+
+                btnIngresar.disabled = false;
+                btnIngresar.classList.remove('btn-ingresar-deshabilitado');
+                txtCodigo.disabled = false;
+            }
+
+            verificarConvocatoria();
+        }
+
+        function mostrarRegistroAlumno() {
+            if (!registroAbierto) {
+                showToast("El registro de nuevos alumnos esta cerrado.", "warning");
+                return;
+            }
+            document.getElementById('form-login').classList.add('oculto');
+            document.getElementById('btn-mostrar-registro').classList.add('oculto');
+            document.getElementById('btn-google-alumno').classList.add('oculto');
+            document.getElementById('form-registro-alumno').classList.remove('oculto');
+        }
+
+        function ocultarRegistroAlumno() {
+            document.getElementById('form-registro-alumno').classList.add('oculto');
+            document.getElementById('form-login').classList.remove('oculto');
+            if (tipoUsuarioActual === 'alumno') {
+                document.getElementById('btn-mostrar-registro').classList.add('oculto');
+                document.getElementById('btn-google-alumno').classList.remove('oculto');
+            }
+        }
+
+        function guardarSesionAlumno(data, codigo) {
+            localStorage.setItem('codigo_alumno', codigo);
+            localStorage.setItem('nombre_alumno', data.nombre);
+            localStorage.setItem('access_token', data.access_token || '');
+            iniciarSesion('alumno');
+            setTimeout(() => window.location.href = "alumno.html", 1000);
+        }
+
+        async function procesarIngreso(e) {
+            e.preventDefault();
+            const formData = new FormData();
+
+            if (tipoUsuarioActual === 'alumno') {
+                window.location.href = "/api/auth/google/login";
+            } else {
+                formData.append("usuario", document.getElementById('txt-usuario-doc').value);
+                formData.append("password", document.getElementById('txt-pass-doc').value);
+
+                try {
+                    const res = await fetch('/api/login/docente', { method: 'POST', body: formData });
+                    const data = await res.json();
+
+                    if (res.ok && data.status === "success") {
+                        showToast("Bienvenido, estimado Docente.", "success");
+                        localStorage.setItem('usuario_docente', data.usuario || 'docente');
+                        localStorage.setItem('access_token', data.access_token || '');
+                        iniciarSesion('docente');
+                        setTimeout(() => window.location.href = "docente.html", 1000);
+                    } else {
+                        showToast("Credenciales de docente incorrectas.", "error");
+                    }
+                } catch (err) {
+                    showToast("Error de conexion con el servidor.", "error");
+                }
+            }
+        }
+
+        async function procesarRegistroAlumno(e) {
+            e.preventDefault();
+            const formData = new FormData();
+            const codigo = document.getElementById('reg-codigo').value.trim();
+
+            formData.append("nombres", document.getElementById('reg-nombres').value);
+            formData.append("apellidos", document.getElementById('reg-apellidos').value);
+            formData.append("codigo_alumno", codigo);
+            formData.append("id_departamento", document.getElementById('reg-departamento').value);
+
+            try {
+                const res = await fetch('/api/registro/alumno', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if (res.ok && data.status === "success") {
+                    showToast("Registro completado. Creditos validados con exito.", "success");
+                    guardarSesionAlumno(data, codigo);
+                } else {
+                    showToast("Error: " + (data.detail || "No se pudo registrar al alumno."), "error");
+                }
+            } catch (err) {
+                showToast("Error de conexion con el servidor.", "error");
+            }
+        }
+
+        function mostrarMensajeLoginGoogle() {
+            const params = new URLSearchParams(window.location.search);
+            const login = params.get('login');
+            const mensajes = {
+                dominio_invalido: "Use su correo institucional @lamolina.edu.pe.",
+                alumno_no_apto: "No se pudo validar su aptitud academica para PPP.",
+                convocatoria_cerrada: "El sistema esta cerrado. No hay una convocatoria activa.",
+                google_error: "No se pudo completar el ingreso con Google."
+            };
+
+            if (login && mensajes[login]) {
+                showToast(mensajes[login], "error");
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+    </script>
+</body>
+</html>

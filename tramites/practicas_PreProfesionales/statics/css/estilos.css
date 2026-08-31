@@ -1,0 +1,917 @@
+/* ============================================================
+   estilos.css — Estilos compartidos del sistema PPP
+   Incluye: index.html, alumno.html, docente.html
+            Toasts y Modales de notificaciones.js
+   ============================================================ */
+
+/* index.html body */
+body.index-body {
+    font-family: sans-serif;
+    background: #eef2f3;
+    padding: 50px;
+    text-align: center;
+}
+
+/* alumno.html body */
+body.alumno-body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    padding: 20px;
+    color: #333;
+}
+
+/* docente.html body */
+body.docente-body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f4f6f9;
+    padding: 8px;
+}
+
+body.docente-body .container {
+    max-width: none !important;
+    width: calc(100vw - 16px) !important;
+    margin: 0 auto !important;
+    padding: 36px 32px;
+    box-sizing: border-box;
+    overflow-x: auto;
+}
+
+/* ------------------------------------------------------------
+   INDEX — Login
+   ------------------------------------------------------------ */
+.login-container {
+    max-width: 400px;
+    margin: auto;
+    padding: 30px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.login-title {
+    text-align: center;
+}
+
+.login-type-selector {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.tipo-btn {
+    background: #ff9c08;
+    color: black;
+    border: none;
+    padding: 10px 60px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.tipo-btn.active {
+    background: #007bff;
+    color: white;
+}
+
+.form-label {
+    font-weight: bold;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.btn-login {
+    width: 100%;
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 1.1em;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.btn-login:hover:not(:disabled) {
+    background: #218838;
+}
+
+.btn-google-login {
+    display: block;
+    box-sizing: border-box;
+    background: #ffffff;
+    color: #1f2937;
+    border: 1px solid #dadce0;
+    text-decoration: none;
+}
+
+.btn-google-login:hover {
+    background: #f8fafd;
+}
+
+.btn-login:disabled,
+.btn-login.btn-ingresar-deshabilitado {
+    background: #adb5bd;
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+.oculto {
+    display: none;
+}
+
+.btn-link-registro {
+    background: transparent;
+    color: #007bff;
+    border: none;
+    padding: 10px;
+    margin-top: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-link-registro:hover:not(:disabled) {
+    text-decoration: underline;
+}
+
+.btn-link-registro:disabled {
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.registro-alumno {
+    border-top: 1px solid #e9ecef;
+    margin-top: 18px;
+    padding-top: 18px;
+    text-align: left;
+}
+
+.registro-title {
+    margin: 0 0 15px;
+    text-align: center;
+}
+
+.box {
+    background: white;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* ------------------------------------------------------------
+   ALUMNO — Expedientes
+   ------------------------------------------------------------ */
+.container {
+    max-width: 1000px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.header-panel {
+    text-align: right;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.logout-link {
+    margin-left: 15px;
+    color: #d9534f;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.content-separator {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+}
+
+.formatos-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.formatos-grid .btn-descarga {
+    margin-right: 0;
+}
+
+.btn-descarga {
+    background: #007bff;
+    color: white;
+    padding: 10px 15px;
+    text-decoration: none;
+    
+    border-radius: 5px;
+    display: inline-block;
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.btn-expediente-completo {
+    margin-top: 15px;
+}
+
+.btn-subir {
+    background: #28a745;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1em;
+}
+
+.status-box {
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    margin-top: 15px;
+    display: inline-block;
+}
+
+.fase-contenedor {
+    display: none;
+    padding: 10px 0;
+}
+
+.fase-contenedor.fase-activa {
+    display: block;
+}
+
+.finalizado-box {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    padding: 20px;
+    border-radius: 8px;
+    line-height: 1.5;
+}
+
+.observaciones-box {
+    display: none;
+    background: #fff8e1;
+    border: 1px solid #ffe08a;
+    color: #5f4700;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+}
+
+.observaciones-box.visible {
+    display: block;
+}
+
+.observacion-item {
+    border-top: 1px solid #f1d36b;
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+.selected-files-list {
+    margin-top: 8px;
+    color: #555;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.selected-files-box {
+    background: #f8f9fa;
+    border-left: 4px solid #007bff;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.selected-files-items {
+    margin: 5px 0 0 15px;
+    padding: 0;
+}
+
+.selected-file {
+    color: #333;
+}
+
+.selected-file-size {
+    color: #888;
+    font-size: 0.85em;
+}
+
+/* ------------------------------------------------------------
+   ESTADOS — compartidos entre alumno y docente
+   ------------------------------------------------------------ */
+.pendiente  { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+.aprobado   { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.observado  { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.no-enviado,
+.bloqueado  { background: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
+
+/* ------------------------------------------------------------
+   DOCENTE — Panel de revisión
+   ------------------------------------------------------------ */
+.docente-toolbar {
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.btn-cerrar-sesion {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+table {
+    width: 100%;
+    min-width: 1080px;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+    vertical-align: middle;
+}
+
+th { background-color: #007bff; color: white; }
+
+th:nth-child(1) { min-width: 90px; }
+th:nth-child(2) { min-width: 120px; }
+th:nth-child(3) { min-width: 70px; }
+th:nth-child(4) { min-width: 145px; }
+th:nth-child(5) { min-width: 120px; }
+th:nth-child(6) { min-width: 105px; }
+th:nth-child(7) { min-width: 105px; }
+th:nth-child(8) { min-width: 130px; }
+th:nth-child(9) { min-width: 135px; }
+
+.td-acciones-fase {
+    min-width: 145px;
+}
+
+.col-expediente-completo,
+.td-expediente-completo {
+    min-width: 140px;
+    text-align: center;
+}
+
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.tab-btn {
+    background: #e9ecef;
+    color: #343a40;
+    border: 1px solid #d6d8db;
+    border-bottom: none;
+    padding: 10px 16px;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.tab-btn.active { background: #007bff; color: white; border-color: #007bff; }
+
+.fase-resumen { margin-top: 15px; color: #555; font-weight: 600; }
+
+.btn-aprobar {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-observar {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+.badge {
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.85em;
+}
+
+.btn-ver-archivos {
+    background: #17a2b8;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-ver-archivos:hover { background: #138496; }
+
+.btn-descarga-expediente {
+    background: #17a2b8;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    text-decoration: none;
+    white-space: nowrap;
+    text-align: center;
+    min-width: 104px;
+    box-sizing: border-box;
+}
+
+.btn-descarga-expediente:hover {
+    background: #138496;
+    color: white;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    overflow: auto;
+    background: rgba(0,0,0,0.45);
+}
+
+.modal-overlay.is-open {
+    display: block;
+}
+
+.modal-content {
+    background: white;
+    margin: 8% auto;
+    padding: 25px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 650px;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 15px;
+}
+
+.modal-header h3 { margin: 0 0 10px 0; }
+
+.modal-close {
+    background: #dc3545;
+    color: white;
+    border: none;
+    width: 32px; height: 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.1em;
+    line-height: 1;
+}
+
+.archivo-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.archivo-item a { color: #007bff; text-decoration: none; font-weight: 600; }
+.archivo-item a:hover { text-decoration: underline; }
+
+.archivo-acciones {
+    margin-top: 6px;
+}
+
+.btn-aprobar-documento {
+    margin-left: 8px;
+}
+
+.observacion-input {
+    width: 100%;
+    min-height: 70px;
+    box-sizing: border-box;
+    margin-top: 8px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: 'Segoe UI', sans-serif;
+    resize: vertical;
+}
+
+/* ------------------------------------------------------------
+   TOAST
+   ------------------------------------------------------------ */
+#toast-contenedor {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 22px;
+    border-radius: 6px;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 1.05em;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 300px;
+    max-width: 420px;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.toast-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast-icono {
+    font-size: 1.1em;
+    flex-shrink: 0;
+}
+
+.toast-success {
+    background: #d4edda;
+    color: #155724;
+    border-left: 4px solid #28a745;
+}
+
+.toast-error {
+    background: #f8d7da;
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+}
+
+.toast-warning {
+    background: #fff3cd;
+    color: #856404;
+    border-left: 4px solid #ffc107;
+}
+
+/* ------------------------------------------------------------
+   MODAL
+   ------------------------------------------------------------ */
+#modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#modal-overlay.modal-visible {
+    opacity: 1;
+}
+
+.modal-caja {
+    background: white;
+    border-radius: 10px;
+    padding: 30px 28px 24px;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    font-family: 'Segoe UI', sans-serif;
+    transform: translateY(-10px);
+    transition: transform 0.3s ease;
+}
+
+#modal-overlay.modal-visible .modal-caja {
+    transform: translateY(0);
+}
+
+.modal-titulo {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+.modal-mensaje {
+    font-size: 0.95em;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 22px;
+}
+
+.modal-botones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.modal-btn {
+    padding: 9px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.92em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.modal-btn:hover {
+    opacity: 0.85;
+}
+
+.modal-btn-principal {
+    background: #28a745;
+    color: white;
+}
+
+.modal-btn-secundario {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+/* ------------------------------------------------------------
+   INDEX — Aviso de convocatoria y estado del botón de ingreso
+   ------------------------------------------------------------ */
+.btn-ingresar {
+    width: 100%;
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 1.1em;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}
+ 
+.btn-ingresar:hover:not(:disabled) {
+    background: #218838;
+}
+ 
+.btn-ingresar:disabled,
+.btn-ingresar-deshabilitado {
+    background: #adb5bd;
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+.aviso-convocatoria {
+    display: none;
+}
+
+.aviso-convocatoria.visible {
+    display: block;
+}
+ 
+.aviso-convocatoria-abierta {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+    text-align: center;
+}
+ 
+.aviso-convocatoria-cerrada {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+    text-align: center;
+}
+ 
+/* ------------------------------------------------------------
+   DOCENTE — Layout dos columnas (cronograma + expedientes)
+   ------------------------------------------------------------ */
+.docente-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    width: 100%;
+    overflow-x: visible;
+}
+ 
+.panel-cronograma {
+    width: 220px;
+    flex-shrink: 0;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 14px;
+}
+ 
+.panel-expedientes {
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+ 
+.cronograma-titulo {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+}
+ 
+.conv-select {
+    width: 100%;
+    padding: 7px 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 13px;
+    background: white;
+    color: #333;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+}
+ 
+.conv-card {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 12px;
+}
+
+.conv-form-nueva {
+    margin-top: 12px;
+}
+ 
+.conv-nombre {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: #333;
+}
+ 
+.conv-fila {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 8px;
+}
+ 
+.conv-label {
+    font-size: 11px;
+    color: #6c757d;
+}
+ 
+.conv-input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 12px;
+    box-sizing: border-box;
+    background: #f8f9fa;
+}
+ 
+.conv-aviso {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    color: #856404;
+    border-radius: 4px;
+    padding: 7px 9px;
+    font-size: 11px;
+    margin-bottom: 8px;
+}
+ 
+.conv-btn-guardar {
+    width: 100%;
+    padding: 7px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 6px;
+}
+ 
+.conv-btn-guardar:hover { background: #0069d9; }
+ 
+.conv-btn-toggle {
+    width: 100%;
+    padding: 7px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+ 
+.conv-btn-cerrar { background: #dc3545; color: white; }
+.conv-btn-cerrar:hover { background: #c82333; }
+.conv-btn-abrir { background: #28a745; color: white; }
+.conv-btn-abrir:hover { background: #218838; }
+ 
+.conv-btn-nueva {
+    width: 100%;
+    padding: 7px;
+    background: transparent;
+    color: #007bff;
+    border: 1px dashed #007bff;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+ 
+.conv-btn-nueva:hover { background: #e7f1ff; }
+ 
+.conv-btn-cancelar {
+    width: 100%;
+    padding: 7px;
+    background: #e2e3e5;
+    color: #383d41;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+ 
+.badge-conv-abierto {
+    display: inline-block;
+    background: #d4edda;
+    color: #155724;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+ 
+.badge-conv-cerrado {
+    display: inline-block;
+    background: #f8d7da;
+    color: #721c24;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+ 
+.der-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+ 
+.der-titulo {
+    font-size: 18px;
+    font-weight: 500;
+}

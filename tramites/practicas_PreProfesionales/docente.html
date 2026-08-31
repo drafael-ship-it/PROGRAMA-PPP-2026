@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Revisin - Docente FEP</title>
+    <link rel="stylesheet" href="statics/css/estilos.css">
+    <script src="statics/js/notificaciones.js"></script>
+</head>
+<body class="docente-body">
+
+<div class="container">
+    <div class="docente-toolbar">
+        <button onclick="cerrarSesionDocente()" class="btn-cerrar-sesion">
+             Cerrar Sesión
+        </button>
+    </div>
+
+    <h2>Panel del Docente: Revisión de Expedientes de Prácticas</h2>
+    <p>Desde aquí puede verificar los archivos PDF subidos por los alumnos y modificar sus estados académicos.</p>
+    <hr>
+
+    <div class="docente-layout">
+        <aside class="panel-cronograma">
+            <div class="cronograma-titulo">Convocatoria</div>
+
+            <select id="sel-convocatoria" class="conv-select" onchange="cambiarConvocatoriaDocente()">
+                <option value="">Seleccione una convocatoria</option>
+            </select>
+
+            <div id="detalle-convocatoria" class="conv-card oculto">
+                <div id="conv-badge-estado" class="badge-conv-cerrado">Cerrado</div>
+                <div id="conv-nombre-detalle" class="conv-nombre"></div>
+
+                <label class="conv-fila">
+                    <span class="conv-label">Inicio</span>
+                    <input type="datetime-local" id="conv-fecha-inicio" class="conv-input">
+                </label>
+
+                <label class="conv-fila">
+                    <span class="conv-label">Fin</span>
+                    <input type="datetime-local" id="conv-fecha-fin" class="conv-input">
+                </label>
+
+                <div id="conv-aviso-cierre" class="conv-aviso oculto"></div>
+                <button type="button" class="conv-btn-guardar" onclick="guardarFechasConvocatoria()">Guardar fechas</button>
+                <button type="button" id="btn-toggle-conv" class="conv-btn-toggle conv-btn-abrir" onclick="toggleConvocatoria()">Abrir convocatoria ahora</button>
+            </div>
+
+            <button type="button" class="conv-btn-nueva" onclick="mostrarFormNueva()">Nueva convocatoria</button>
+
+            <div id="form-nueva-conv" class="conv-card conv-form-nueva oculto">
+                <label class="conv-fila">
+                    <span class="conv-label">Nombre</span>
+                    <input type="text" id="nueva-conv-nombre" class="conv-input" placeholder="Ej. PPP 2026-I">
+                </label>
+
+                <label class="conv-fila">
+                    <span class="conv-label">Inicio</span>
+                    <input type="datetime-local" id="nueva-conv-inicio" class="conv-input">
+                </label>
+
+                <label class="conv-fila">
+                    <span class="conv-label">Fin</span>
+                    <input type="datetime-local" id="nueva-conv-fin" class="conv-input">
+                </label>
+
+                <button type="button" class="conv-btn-guardar" onclick="crearConvocatoria()">Crear convocatoria</button>
+                <button type="button" class="conv-btn-cancelar" onclick="ocultarFormNueva()">Cancelar</button>
+            </div>
+        </aside>
+
+        <section class="panel-expedientes">
+            <div class="tabs">
+                <button id="tab-fase1" class="tab-btn active" onclick="cambiarFase(1)">Fase 1</button>
+                <button id="tab-fase2" class="tab-btn" onclick="cambiarFase(2)">Fase 2</button>
+                <button id="tab-fase3" class="tab-btn" onclick="cambiarFase(3)">Fase 3</button>
+            </div>
+
+            <div id="fase-resumen" class="fase-resumen"></div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código Alumno</th>
+                        <th>Alumno</th>
+                        <th>Créditos</th>
+                        <th>Departamento</th>
+                        <th>Estado expediente</th>
+                        <th id="th-estado">Estado Fase 1</th>
+                        <th id="th-archivos">Archivos Fase 1</th>
+                        <th id="th-acciones">Acciones Fase 1</th>
+                        <th id="th-expediente-completo" class="col-expediente-completo oculto">Expediente completo</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-expedientes"></tbody>
+            </table>
+        </section>
+    </div>
+</div>
+
+<script>
+    const SESSION_DURATION_MS = 30 * 60 * 1000;
+    const SESSION_WARNING_MS = 5 * 60 * 1000;
+    let avisoSesionMostrado = false;
+
+    async function cerrarSesionDocente(mostrarMensaje = true) {
+        localStorage.removeItem('usuario_docente');
+        localStorage.removeItem('tipo_sesion');
+        localStorage.removeItem('sesion_expira_en');
+        localStorage.removeItem('access_token');
+
+        if (mostrarMensaje) showToast("Sesión cerrada correctamente.", "success");
+        setTimeout(() => window.location.href = "index.html", 800);
+    }
+
+    function renovarSesionDocente() {
+        localStorage.setItem('sesion_expira_en', (Date.now() + SESSION_DURATION_MS).toString());
+    }
+
+    function verificarSesionDocente() {
+        const tipoSesion = localStorage.getItem('tipo_sesion');
+        const expiraEn = Number(localStorage.getItem('sesion_expira_en') || 0);
+
+        if (tipoSesion !== 'docente' || !localStorage.getItem('usuario_docente') || !expiraEn || Date.now() >= expiraEn) {
+            showModal({
+                titulo: "Sesión expirada",
+                mensaje: "Su sesión ha expirado.",
+                txtConfirmar: "Aceptar",
+                onConfirmar: () => cerrarSesionDocente(false)
+            });
+            return;
+        }
+
+        const restante = expiraEn - Date.now();
+        if (restante <= SESSION_WARNING_MS && !avisoSesionMostrado) {
+            avisoSesionMostrado = true;
+            showModal({
+                titulo: "Sesión por expirar",
+                mensaje: "Su sesión está por expirar. ¿Desea continuar?",
+                txtConfirmar: "Continuar sesión",
+                txtCancelar: "Cerrar sesión",
+                onConfirmar: () => { renovarSesionDocente(); avisoSesionMostrado = false; },
+                onCancelar: () => cerrarSesionDocente()
+            });
+        }
+    }
+
+    verificarSesionDocente();
+    setInterval(verificarSesionDocente, 60000);
+
+    let faseActiva = 1;
+    let expedientes = [];
+    let modalCodigoAlumno = "";
+    let modalNombreAlumno = "";
+    let modalFase = 1;
+
+    function cambiarFase(fase) {
+        faseActiva = fase;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`tab-fase${fase}`).classList.add('active');
+        renderizarExpedientes();
+    }
+
+    async function cargarExpedientes() {
+        try {
+            const token = localStorage.getItem('access_token') || '';
+            const idConvocatoria = document.getElementById('sel-convocatoria')?.value || '';
+
+            if (!idConvocatoria) {
+                expedientes = [];
+                renderizarExpedientes();
+                return;
+            }
+
+            const res = await fetch(`/api/docente/expedientes?id_convocatoria=${encodeURIComponent(idConvocatoria)}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.detail || "No se pudo cargar expedientes.");
+            }
+            expedientes = await res.json();
+            renderizarExpedientes();
+        } catch (err) {
+            console.error("Error al cargar expedientes", err);
+            document.getElementById('tabla-expedientes').innerHTML = `<tr><td colspan="${faseActiva === 3 ? 9 : 8}">Error al cargar expedientes: ${err.message}</td></tr>`;
+        }
+    }
+
+    function obtenerExpedientesPorFase() {
+        if (faseActiva === 2) {
+            return expedientes.filter(exp => exp.fase1_estado === 'aprobado');
+        }
+
+        if (faseActiva === 3) {
+            return expedientes.filter(exp => exp.fase2_estado === 'aprobado');
+        }
+
+        return expedientes;
+    }
+
+    function renderizarExpedientes() {
+        const tbody = document.getElementById('tabla-expedientes');
+        const lista = obtenerExpedientesPorFase();
+        const estadoKey = `fase${faseActiva}_estado`;
+        const archivoKey = `fase${faseActiva}_archivo`;
+        const faseTexto = `Fase ${faseActiva}`;
+
+        document.getElementById('th-estado').innerText = `Estado ${faseTexto}`;
+        document.getElementById('th-archivos').innerText = `Archivos ${faseTexto}`;
+        document.getElementById('th-acciones').innerText = `Acciones ${faseTexto}`;
+        document.getElementById('th-expediente-completo').classList.toggle('oculto', faseActiva !== 3);
+        document.getElementById('fase-resumen').innerText = obtenerResumenFase(lista.length);
+        tbody.innerHTML = "";
+
+        if (lista.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${faseActiva === 3 ? 9 : 8}">No hay expedientes disponibles para ${faseTexto}.</td></tr>`;
+            return;
+        }
+
+        lista.forEach(exp => {
+            const estado = exp[estadoKey] || 'no-enviado';
+            const nombreAlumno = `${exp.nombres || ""} ${exp.apellidos || ""}`.trim();
+            const linksArchivos = obtenerLinksArchivos(exp.codigo_alumno, exp[archivoKey], nombreAlumno);
+            const acciones = obtenerAcciones(exp.codigo_alumno, estado);
+            const descargaExpediente = obtenerDescargaExpedienteCompleto(exp.codigo_alumno, estado);
+
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${exp.codigo_alumno}</strong></td>
+		            <td>${exp.nombres || ""} ${exp.apellidos || ""}</td>
+                    <td>${exp.creditos_aprobados || "-"}</td>
+                    <td>${exp.departamento || "-"}</td>
+                    <td><span class="badge">${exp.estado_general || "-"}</span></td>
+                    <td><span class="badge ${estado}">${estado.toUpperCase()}</span></td>
+                    <td>${linksArchivos}</td>
+                    <td class="td-acciones-fase">${acciones}</td>
+                    ${faseActiva === 3 ? `<td class="td-expediente-completo">${descargaExpediente}</td>` : ""}
+                </tr>
+            `;
+        });
+    }
+
+    function obtenerResumenFase(total) {
+        if (faseActiva === 2) {
+            return `${total} expediente(s) con Fase 1 aprobada.`;
+        }
+
+        if (faseActiva === 3) {
+            return `${total} expediente(s) con Fase 2 aprobada.`;
+        }
+
+        return `${total} expediente(s) registrados.`;
+    }
+
+    function obtenerLinksArchivos(codigoAlumno, archivos, nombresAlumno = "") {
+        if (!archivos) {
+            return "Ninguno";
+        }
+
+        const archivosCodificados = encodeURIComponent(archivos);
+        const alumnoCodificado = encodeURIComponent(nombresAlumno);
+
+        return `
+            <button 
+                class="btn-ver-archivos" 
+                onclick="abrirModalArchivos('${codigoAlumno}', '${archivosCodificados}', '${alumnoCodificado}')">
+                Ver archivos
+            </button>
+        `;
+    }
+
+    function obtenerAcciones(codigoAlumno, estado) {
+        if (estado === 'pendiente') {
+            return `
+                <button class="btn-aprobar" onclick="evaluar('${codigoAlumno}', ${faseActiva}, 'aprobado')">Aprobar</button>
+                <button class="btn-observar" onclick="evaluar('${codigoAlumno}', ${faseActiva}, 'observado')">Observar</button>
+            `;
+        }
+
+        return "Fase aprobada o sin envíos";
+    }
+
+    function obtenerDescargaExpedienteCompleto(codigoAlumno, estado) {
+        if (faseActiva !== 3 || estado !== 'aprobado') {
+            return "-";
+        }
+
+        return `
+            <a class="btn-ver-archivos btn-descarga-expediente"
+               href="/api/expediente/${encodeURIComponent(codigoAlumno)}/pdf-completo"
+               target="_blank"
+               download>
+                Descargar PDF
+            </a>
+        `;
+    }
+
+    function abrirModalArchivos(codigoAlumno, archivosCodificados, alumnoCodificado) {
+        const archivos = decodeURIComponent(archivosCodificados);
+        const alumno = decodeURIComponent(alumnoCodificado || "");
+        const lista = document.getElementById("modal-lista-archivos");
+        const titulo = document.getElementById("modal-titulo");
+        modalCodigoAlumno = codigoAlumno;
+        modalNombreAlumno = alumno;
+        modalFase = faseActiva;
+
+        titulo.innerText = `Archivos enviados - ${codigoAlumno}${alumno ? " | " + alumno : ""}`;
+        lista.innerHTML = "";
+
+        if (!archivos) {
+            lista.innerHTML = "<p>No hay archivos enviados.</p>";
+        } else {
+            archivos.split(";;").forEach(item => {
+                const partes = item.split("|");
+                const idDocumento = partes[0];
+                const nombre = partes[1] || item;
+                const estadoDocumento = partes[2] || "EN_REVISION";
+                const url = `/archivos_expedientes/${codigoAlumno}/fase_${modalFase}/${nombre}`;
+
+                lista.innerHTML += `
+                    <div class="archivo-item">
+                        <a href="${url}" target="_blank">${nombre}</a>
+                        <div class="archivo-acciones">
+                            <span class="badge">${estadoDocumento}</span>
+                            ${obtenerAccionesDocumento(idDocumento, estadoDocumento)}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById("modal-archivos").classList.add("is-open");
+    }
+
+    function obtenerAccionesDocumento(idDocumento, estadoDocumento) {
+        if (!idDocumento || estadoDocumento === "VALIDO" || estadoDocumento === "OBSERVADO") {
+            return "";
+        }
+
+        return `
+            <textarea id="obs-doc-${idDocumento}" class="observacion-input" placeholder="Escriba aqui las observaciones para el alumno antes de observar el documento"></textarea>
+            <button class="btn-aprobar btn-aprobar-documento" onclick="evaluarDocumento('${idDocumento}', 'VALIDO')">Aprobar</button>
+            <button class="btn-observar" onclick="evaluarDocumento('${idDocumento}', 'OBSERVADO', 'obs-doc-${idDocumento}')">Observar</button>
+        `;
+    }
+
+    async function evaluarDocumento(idDocumento, nuevoEstado, observacionInputId = "") {
+        const formData = new FormData();
+        formData.append("id_documento", idDocumento);
+        formData.append("nuevo_estado", nuevoEstado);
+
+        if (nuevoEstado === "OBSERVADO") {
+            const observacion = document.getElementById(observacionInputId)?.value.trim() || "";
+            if (!observacion) {
+                showToast("Debe escribir una observación antes de observar el documento.", "warning");
+                return;
+            }
+            formData.append("observacion", observacion);
+        }
+
+        try {
+            const token = localStorage.getItem('access_token') || '';
+            const res = await fetch('/api/docente/documento/evaluar', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            if (res.ok) {
+                await cargarExpedientes();
+                refrescarModalArchivos();
+            } else {
+                const err = await res.json();
+                showToast("Error al actualizar el documento: " + (err.detail || "Respuesta no válida del servidor."), "error");
+            }
+        } catch (err) {
+            showToast("Error al enviar la evaluación del documento.", "error");
+        }
+    }
+
+    function cerrarModalArchivos() {
+        document.getElementById("modal-archivos").classList.remove("is-open");
+    }
+
+    function refrescarModalArchivos() {
+        const expediente = expedientes.find(exp => exp.codigo_alumno === modalCodigoAlumno);
+        if (!expediente) {
+            cerrarModalArchivos();
+            return;
+        }
+
+        const faseAnterior = faseActiva;
+        faseActiva = modalFase;
+        const archivos = expediente[`fase${modalFase}_archivo`] || "";
+        abrirModalArchivos(
+            modalCodigoAlumno,
+            encodeURIComponent(archivos),
+            encodeURIComponent(modalNombreAlumno)
+        );
+        faseActiva = faseAnterior;
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("modal-archivos");
+        if (event.target === modal) {
+            cerrarModalArchivos();
+        }
+    };
+
+    async function evaluar(codigo, fase, nuevo_estado) {
+        let estadoLimpio = nuevo_estado.includes('aprob') ? 'aprobado' : 'observado';
+	    const formData = new FormData();
+        formData.append("codigo_alumno", codigo);
+        formData.append("fase", fase);
+        formData.append("nuevo_estado", estadoLimpio);
+
+        try {
+            const token = localStorage.getItem('access_token') || '';
+            const res = await fetch('/api/docente/evaluar', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            if (res.ok) {
+                showToast("Fase actualizada correctamente.", "success");
+                cargarExpedientes();
+            } else {
+                const err = await res.json();
+                showToast("Error al actualizar la fase: " + (err.detail || "Respuesta no válida del servidor."), "error");
+            }
+        } catch (err) {
+            showToast("Error al enviar la evaluación.", "error");
+        }
+    }
+
+    // ============================================================
+    // CONVOCATORIAS
+    // ============================================================
+    let convocatorias = [];
+    let convSeleccionada = null;
+ 
+    async function cargarConvocatorias() {
+        try {
+            const token = localStorage.getItem('access_token') || '';
+            const res = await fetch('/api/convocatorias', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.detail || "No se pudo cargar convocatorias.");
+            }
+            convocatorias = await res.json();
+            const sel = document.getElementById('sel-convocatoria');
+            const seleccionAnterior = sel.value;
+            sel.innerHTML = '<option value="">Seleccione una convocatoria</option>';
+            convocatorias.forEach(c => {
+                const op = document.createElement('option');
+                op.value = c.id_convocatoria;
+                op.textContent = c.nombre + (c.activo ? ' ✓' : '');
+                sel.appendChild(op);
+            });
+
+            const activa = convocatorias.find(c => c.activo);
+            const existeSeleccionAnterior = convocatorias.some(c => String(c.id_convocatoria) === String(seleccionAnterior));
+            if (existeSeleccionAnterior) {
+                sel.value = seleccionAnterior;
+            } else if (activa) {
+                sel.value = activa.id_convocatoria;
+            } else if (convocatorias.length) {
+                sel.value = convocatorias[0].id_convocatoria;
+            }
+
+            cargarDetalleConvocatoria();
+            await cargarExpedientes();
+        } catch (err) {
+            console.error("Error al cargar convocatorias:", err);
+            showToast("Error al cargar convocatorias.", "error");
+        }
+    }
+
+    async function cambiarConvocatoriaDocente() {
+        cargarDetalleConvocatoria();
+        await cargarExpedientes();
+    }
+ 
+    function cargarDetalleConvocatoria() {
+        const id = document.getElementById('sel-convocatoria').value;
+        if (!id) {
+            document.getElementById('detalle-convocatoria').classList.add('oculto');
+            convSeleccionada = null;
+            return;
+        }
+ 
+        convSeleccionada = convocatorias.find(c => c.id_convocatoria == id);
+        if (!convSeleccionada) return;
+ 
+        document.getElementById('conv-nombre-detalle').textContent = convSeleccionada.nombre;
+        document.getElementById('conv-fecha-inicio').value = convSeleccionada.fecha_inicio
+            ? convSeleccionada.fecha_inicio.replace(' ', 'T').slice(0, 16) : '';
+        document.getElementById('conv-fecha-fin').value = convSeleccionada.fecha_fin
+            ? convSeleccionada.fecha_fin.replace(' ', 'T').slice(0, 16) : '';
+ 
+        const badge = document.getElementById('conv-badge-estado');
+        const btnToggle = document.getElementById('btn-toggle-conv');
+        const aviso = document.getElementById('conv-aviso-cierre');
+ 
+        if (convSeleccionada.activo) {
+            badge.className = 'badge-conv-abierto'; badge.textContent = '● Abierto';
+            btnToggle.className = 'conv-btn-toggle conv-btn-cerrar'; btnToggle.textContent = 'Cerrar convocatoria ahora';
+        } else {
+            badge.className = 'badge-conv-cerrado'; badge.textContent = '● Cerrado';
+            btnToggle.className = 'conv-btn-toggle conv-btn-abrir'; btnToggle.textContent = 'Abrir convocatoria ahora';
+        }
+ 
+        if (convSeleccionada.fecha_fin) {
+            const fechaFin = new Date(convSeleccionada.fecha_fin).toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' });
+            aviso.classList.remove('oculto');
+            aviso.textContent = `Cierra el ${fechaFin}`;
+        } else {
+            aviso.classList.add('oculto');
+        }
+ 
+        document.getElementById('detalle-convocatoria').classList.remove('oculto');
+    }
+ 
+    async function guardarFechasConvocatoria() {
+        if (!convSeleccionada) return;
+        const formData = new FormData();
+        formData.append('fecha_inicio', document.getElementById('conv-fecha-inicio').value);
+        formData.append('fecha_fin', document.getElementById('conv-fecha-fin').value);
+ 
+        try {
+            const token = localStorage.getItem('access_token') || '';
+            const res = await fetch(`/api/docente/convocatorias/${convSeleccionada.id_convocatoria}`, {
+                method: 'PUT', headers: { 'Authorization': `Bearer ${token}` }, body: formData
+            });
+            if (res.ok) {
+                showToast("Fechas guardadas correctamente.", "success");
+                await cargarConvocatorias();
+                document.getElementById('sel-convocatoria').value = convSeleccionada.id_convocatoria;
+                cargarDetalleConvocatoria();
+            } else {
+                const err = await res.json();
+                showToast("Error: " + err.detail, "error");
+            }
+        } catch (err) {
+            showToast("Error al guardar fechas.", "error");
+        }
+    }
+ 
+    async function toggleConvocatoria() {
+        if (!convSeleccionada) return;
+        const nuevoEstado = convSeleccionada.activo ? 0 : 1;
+        const accion = nuevoEstado === 1 ? 'abrir' : 'cerrar';
+ 
+        showModal({
+            titulo: nuevoEstado === 1 ? 'Abrir convocatoria' : 'Cerrar convocatoria',
+            mensaje: `¿Está seguro que desea ${accion} la convocatoria "${convSeleccionada.nombre}"?${nuevoEstado === 1 ? ' Esto cerrará cualquier otra convocatoria activa.' : ''}`,
+            txtConfirmar: nuevoEstado === 1 ? 'Sí, abrir' : 'Sí, cerrar',
+            txtCancelar: 'Cancelar',
+            onConfirmar: async () => {
+                const formData = new FormData();
+                formData.append('activo', nuevoEstado);
+                try {
+                    const token = localStorage.getItem('access_token') || '';
+                    const res = await fetch(`/api/docente/convocatorias/${convSeleccionada.id_convocatoria}`, {
+                        method: 'PUT', headers: { 'Authorization': `Bearer ${token}` }, body: formData
+                    });
+                    if (res.ok) {
+                        showToast(nuevoEstado === 1 ? 'Convocatoria abierta.' : 'Convocatoria cerrada.', 'success');
+                        await cargarConvocatorias();
+                        document.getElementById('sel-convocatoria').value = convSeleccionada.id_convocatoria;
+                        cargarDetalleConvocatoria();
+                    } else {
+                        const err = await res.json();
+                        showToast("Error: " + err.detail, "error");
+                    }
+                } catch (err) {
+                    showToast("Error al cambiar estado.", "error");
+                }
+            }
+        });
+    }
+ 
+    async function crearConvocatoria() {
+        const nombre = document.getElementById('nueva-conv-nombre').value.trim();
+        if (!nombre) { showToast("Ingrese un nombre para la convocatoria.", "warning"); return; }
+ 
+        const formData = new FormData();
+        formData.append('nombre', nombre);
+        formData.append('fecha_inicio', document.getElementById('nueva-conv-inicio').value);
+        formData.append('fecha_fin', document.getElementById('nueva-conv-fin').value);
+ 
+        try {
+            const token = localStorage.getItem('access_token') || '';
+            const res = await fetch('/api/docente/convocatorias', {
+                method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: formData
+            });
+            if (res.ok) {
+                const data = await res.json();
+                showToast("Convocatoria creada correctamente.", "success");
+                ocultarFormNueva();
+                await cargarConvocatorias();
+                document.getElementById('sel-convocatoria').value = data.id_convocatoria;
+                cargarDetalleConvocatoria();
+                await cargarExpedientes();
+            } else {
+                const err = await res.json();
+                showToast("Error: " + err.detail, "error");
+            }
+        } catch (err) {
+            showToast("Error al crear convocatoria.", "error");
+        }
+    }
+ 
+    function mostrarFormNueva() {
+        document.getElementById('form-nueva-conv').classList.remove('oculto');
+    }
+ 
+    function ocultarFormNueva() {
+        document.getElementById('form-nueva-conv').classList.add('oculto');
+        document.getElementById('nueva-conv-nombre').value = '';
+        document.getElementById('nueva-conv-inicio').value = '';
+        document.getElementById('nueva-conv-fin').value = '';
+    }
+ 
+    cargarConvocatorias();
+</script>
+<div id="modal-archivos" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-titulo">Archivos enviados</h3>
+            <button class="modal-close" onclick="cerrarModalArchivos()" title="Cerrar">X</button>
+        </div>
+
+        <div id="modal-lista-archivos"></div>
+    </div>
+</div>
+</body>
+</html>

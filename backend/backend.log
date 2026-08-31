@@ -1,0 +1,12 @@
+nohup: ignoring input
+INFO:     Will watch for changes in these directories: ['/var/www/economia/backend']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [15179] using StatReload
+INFO:     Started server process [15181]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     172.17.58.33:0 - "GET /api/docente/expedientes HTTP/1.0" 200 OK
+INFO:     172.17.58.33:0 - "POST /api/docente/evaluar HTTP/1.0" 500 Internal Server Error
+INFO:     172.17.58.33:0 - "GET /api/docente/expedientes HTTP/1.0" 200 OK
+INFO:     172.17.58.33:0 - "GET /api/docente/expedientes HTTP/1.0" 200 OK
+INFO:     172.17.58.33:0 - "POST /api/docente/evaluar HTTP/1.0" 500 Internal Server Error
